@@ -48,12 +48,19 @@ div.vertical-line{
   position: absolute;
   left: 0;
   width: 1px;
-  background-color: black;
   height: 100%;
 }
 
-div.beat-line {
-  color: grey;
+div.scrub-line  {
+  background-color: black;
+}
+
+div.beat-line:nth-child(even) {
+  width: 2px;
+  background-color: black;
+}
+div.beat-line:nth-child(odd) {
+  background-color: grey;
 }
 
 .colors {

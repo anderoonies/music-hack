@@ -13,7 +13,7 @@ var lastTime = 0;
 
 var sounds = {};
 
-var synthMP3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
+var synthMP3s = ['C.mp3', 'D.mp3', 'E.mp3', 'F.mp3', 'G.mp3', 'A.mp3', 'B.mp3', 'C8a.mp3'];
 
 sounds.bass = new Howl({
   urls: ['bass.mp3']

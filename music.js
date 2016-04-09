@@ -13,7 +13,7 @@ var lastTime = 0;
 
 var sounds = {};
 
-var mp3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
+var synthMP3s = ['C.mp3', 'D.mp3', 'E.mp3', 'F.mp3', 'G.mp3', 'A.mp3', 'B.mp3', 'C8a.mp3'];
 
 var timeLine;
 
@@ -67,7 +67,7 @@ var playSnare = function() {
 }
 
 var playSynth = function(start, y, duration) {
-  var note = Math.round((window.innerHeight - y) / window.innerHeight) * 7;
+  var note = Math.round((window.innerHeight - y) / window.innerHeight * 7);
   console.log(note)
   var url = [synthMP3s[note]];
   console.log(url)
@@ -291,22 +291,37 @@ $(document).ready(function() {
 
       // Line
       if (corners.length === 2) {
-        var start = Math.min(corners[0].x, corners[1].x);
-        var end = Math.max(corners[0].x, corners[1].x);
-        synths.push({
-          start: pointToTime(start),
-          duration: pointToTime(end - start),
+        var start = pointToTime(Math.min(corners[0].x, corners[1].x));
+        var end = pointToTime(Math.max(corners[0].x, corners[1].x));
+        var entry = {
+          start: start,
+          duration: end - start,
           y: (corners[0].y + corners[1].y) / 2
-        });
-      } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
-        snares.push(pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x));
-      } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
-        var x = [];
-        for (var i = 0, l = corners.length; i < l; i++) {
-          x.push(corners[i].x);
+        };
+        var i = 0;
+        var l = synths.length;
+        while(i < l && start >= synths[i].start) {
+          i++;
         }
-        x.sort();
-        bass.push(pointToTime((x[0] + x[1]) / 2));
+        synths.splice(i, 0, entry);
+        console.log(synths);
+      } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
+        var time = pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x);
+        var i = 0;
+        var l = snares.length;
+        while(i < l && time >= snares[i]) {
+          i++;
+        }
+        snares.splice(i, 0, time);
+      } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
+        var sorted = corners.concat().sort(function(a, b) { return a.x - b.x; });
+        var time = pointToTime((sorted[0].x + sorted[1].x) / 2);
+        var i = 0;
+        var l = bass.length;
+        while(i < l && time >= bass[i]) {
+          i++;
+        }
+        bass.splice(i, 0, time);
       } else {
         return;
       }
@@ -327,6 +342,14 @@ $(document).ready(function() {
         c.arc(corners[i].x, corners[i].y, 4, 0, 2 * Math.PI, false);
         c.fill();
       }
+
+      c.fillStyle = 'rgba(0, 255, 255, 0.3)';
+      c.beginPath();
+      c.moveTo(corners[0].x, corners[0].y);
+      for (var i = 1; i < corners.length; i++) {
+        c.lineTo(corners[i].x, corners[i].y);
+      }
+      c.fill();
     });
   });
 

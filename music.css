@@ -51,3 +51,7 @@ div.vertical-line{
   background-color: black;
   height: 100%;
 }
+
+div.beat-line {
+  color: grey;
+}

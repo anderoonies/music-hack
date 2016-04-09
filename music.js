@@ -80,7 +80,7 @@ var playSynth = function(start, y, duration) {
 }
 
 $(document).ready(function() {
-  timeLine = $(".vertical-line");
+  timeLine = $(".scrub-line");
   window.sounds = sounds;
   window.requestAnimationFrame(scrub);
 
@@ -354,4 +354,13 @@ $(document).ready(function() {
   $('#clear').click(function() {
     c.clearRect(0, 0, canvas.width, canvas.height);
   });
+});
+
+$(window).load(function() {
+  $('.beat-line').each(function(i, el) {
+    $(el).css('left', i * (window.innerWidth / 8));
+  })
+  // for (var i = 0; i < $('.beat-line').length; i++) {
+  //   $('.beat-line')[i].style.left = window.innerWidth / 8 * i;
+  // }
 });

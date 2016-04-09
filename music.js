@@ -17,12 +17,9 @@ var mp3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.m
 
 
 sounds.bass = new Audio('bass.mp3');
-// sounds.bass = new Howl({
-//   urls: ['bass.mp3'],
-//   onend: function() {
-//     sounds.bass.pos = 0;
-//   }
-// });
+sounds.bass = new Howl({
+  urls: ['bass.mp3'],
+});
 sounds.snare = new Audio('snare.mp3');
 // sounds.snare = new Howl({
 //   urls: ['snare.mp3'],

@@ -9,14 +9,13 @@ var synthIter = 0;
 var totalMs = 4000;
 
 var beatTime = 0;
-var lastTime = performance.now();
+var lastTime = 0;
 
 var sounds = {};
 
 var mp3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
 
 
-sounds.bass = new Audio('bass.mp3');
 sounds.bass = new Howl({
   urls: ['bass.mp3'],
 });
@@ -30,22 +29,28 @@ sounds.snare = new Audio('snare.mp3');
 
 var scrub = function(newTime) {
   var elapsedTime = newTime - lastTime;
-  beatTime = (beatTime + elapsedTime) % totalMs;
+  beatTime = beatTime + elapsedTime;
+  if (beatTime >= totalMs) {
+    beatTime = beatTime % totalMs;
+    bassIter = 0;
+    snareIter = 0;
+    synthIter = 0;
+  }
 
-  while (bass[bassIter] <= beatTime) {
+  while (bassIter < bass.length && bass[bassIter] <= beatTime) {
     playBass();
-    bassIter = (bassIter + 1) % bass.length;
+    bassIter++;
   }
 
-  while (snares[snareIter] <= beatTime) {
+  while (snareIter < snares.length && snares[snareIter] <= beatTime) {
     playSnare();
-    snareIter = (snareIter + 1) % snares.length;
+    snareIter++;
   }
 
-  while (synths[synthIter].start <= beatTime) {
+  while (synthIter < synths.length && synths[synthIter].start <= beatTime) {
     synth = synths[synthIter];
     playSynth(synth.start, synth.y, synth.duration);
-    synthIter = (synthIter + 1) % synths.length;
+    synthIter++;
   }
 
   lastTime = newTime;
@@ -54,7 +59,6 @@ var scrub = function(newTime) {
 };
 
 var playBass = function() {
-  sounds.bass.src = 'bass.mp3';
   sounds.bass.play();
 }
 
@@ -75,7 +79,7 @@ var playSynth = function(start, y, duration) {
 
 $(document).ready(function() {
   window.sounds = sounds;
-  // scrub();
+  window.requestAnimationFrame(scrub);
 
   canvas = document.getElementById('canvas');
 
@@ -169,7 +173,7 @@ $(document).ready(function() {
   }
 
   function pointToTime(x) {
-    return x / window.innerWidth * 8000;
+    return x / window.innerWidth * totalMs;
   }
 
   function CalculateCircleCenter(A, B, C) {

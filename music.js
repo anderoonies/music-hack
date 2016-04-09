@@ -240,8 +240,6 @@ $(document).ready(function() {
       if (len(delta(line[line.length - 1], line[0])) < 25) {
         corners.push(line[0]);
 
-        c.fillStyle = 'rgba(0, 0, 255, 0.3)';
-
         if (corners.length == 5) {
           //check for square
           var p1 = corners[0];
@@ -256,7 +254,6 @@ $(document).ready(function() {
             (Math.abs(angle_between(p2p3, p3p4) - Math.PI / 2)) < Math.PI / 6 &&
             (Math.abs(angle_between(p3p4, p4p1) - Math.PI / 2)) < Math.PI / 6 &&
             (Math.abs(angle_between(p4p1, p1p2) - Math.PI / 2)) < Math.PI / 6) {
-            c.fillStyle = 'rgba(0, 255, 255, 0.3)';
             var p1p3 = delta(p1, p3);
             var p2p4 = delta(p2, p4);
 
@@ -276,23 +273,18 @@ $(document).ready(function() {
               add(center, tocenter1)
             ];
           }
-
         }
-
-        c.beginPath();
-        c.moveTo(corners[0].x, corners[0].y);
-        for (var i = 1; i < corners.length; i++) {
-          c.lineTo(corners[i].x, corners[i].y);
-        }
-        c.fill();
       } else {
         corners.push(line[line.length - 1]);
       }
-
+      var diff;
       // Line
       if (corners.length === 2) {
         var start = pointToTime(Math.min(corners[0].x, corners[1].x));
-        var end = pointToTime(Math.max(corners[0].x, corners[1].x));
+        var adj = Math.round(start / 250) * 250;
+        diff = (adj - start) / totalMs * window.innerWidth;
+        start = adj;
+        var end = pointToTime(Math.max(corners[0].x, corners[1].x)) + diff;
         var entry = {
           start: start,
           duration: end - start,
@@ -307,6 +299,9 @@ $(document).ready(function() {
         console.log(synths);
       } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
         var time = pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x);
+        var adj = Math.round(time / 250) * 250;
+        diff = (adj - time) / totalMs * window.innerWidth;
+        time = adj;
         var i = 0;
         var l = snares.length;
         while(i < l && time >= snares[i]) {
@@ -316,6 +311,9 @@ $(document).ready(function() {
       } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
         var sorted = corners.concat().sort(function(a, b) { return a.x - b.x; });
         var time = pointToTime((sorted[0].x + sorted[1].x) / 2);
+        var adj = Math.round(time / 250) * 250;
+        diff = (adj - time) / totalMs * window.innerWidth;
+        time = adj;
         var i = 0;
         var l = bass.length;
         while(i < l && time >= bass[i]) {
@@ -330,24 +328,24 @@ $(document).ready(function() {
 
       c.strokeStyle = 'rgba(0, 0, 255, 0.5)';
       c.beginPath();
-      c.moveTo(corners[0].x, corners[0].y);
+      c.moveTo(corners[0].x + diff, corners[0].y);
       for (var i = 1; i < corners.length; i++) {
-        c.lineTo(corners[i].x, corners[i].y);
+        c.lineTo(corners[i].x + diff, corners[i].y);
       }
       c.stroke();
 
       c.fillStyle = 'rgba(255, 0, 0, 0.5)';
       for (var i = 0; i < corners.length; i++) {
         c.beginPath();
-        c.arc(corners[i].x, corners[i].y, 4, 0, 2 * Math.PI, false);
+        c.arc(corners[i].x + diff, corners[i].y, 4, 0, 2 * Math.PI, false);
         c.fill();
       }
 
       c.fillStyle = 'rgba(0, 255, 255, 0.3)';
       c.beginPath();
-      c.moveTo(corners[0].x, corners[0].y);
+      c.moveTo(corners[0].x + diff, corners[0].y);
       for (var i = 1; i < corners.length; i++) {
-        c.lineTo(corners[i].x, corners[i].y);
+        c.lineTo(corners[i].x + diff, corners[i].y);
       }
       c.fill();
     });

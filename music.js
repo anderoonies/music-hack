@@ -13,19 +13,14 @@ var lastTime = 0;
 
 var sounds = {};
 
-var mp3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
-
+var synthMP3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
 
 sounds.bass = new Howl({
-  urls: ['bass.mp3'],
+  urls: ['bass.mp3']
 });
-sounds.snare = new Audio('snare.mp3');
-// sounds.snare = new Howl({
-//   urls: ['snare.mp3'],
-//   onend: function() {
-//     sounds.snare.pos = 0;
-//   }
-// });
+sounds.snare = new Howl({
+  urls: ['snare.mp3']
+});
 
 var scrub = function(newTime) {
   var elapsedTime = newTime - lastTime;
@@ -63,14 +58,13 @@ var playBass = function() {
 }
 
 var playSnare = function() {
-  sounds.snare.src = 'snare.mp3';
   sounds.snare.play();
 }
 
 var playSynth = function(start, y, duration) {
   var note = Math.round(y / 10);
   var sound = new Howl({
-    urls: [mp3s[note]],
+    urls: [synthMP3s[note]],
     sprite: {
       note: [0, duration]
     }
@@ -237,6 +231,8 @@ $(document).ready(function() {
       if (len(delta(line[line.length - 1], line[0])) < 25) {
         corners.push(line[0]);
 
+        c.fillStyle = 'rgba(0, 0, 255, 0.3)';
+
         if (corners.length == 5) {
           //check for square
           var p1 = corners[0];
@@ -251,6 +247,7 @@ $(document).ready(function() {
             (Math.abs(angle_between(p2p3, p3p4) - Math.PI / 2)) < Math.PI / 6 &&
             (Math.abs(angle_between(p3p4, p4p1) - Math.PI / 2)) < Math.PI / 6 &&
             (Math.abs(angle_between(p4p1, p1p2) - Math.PI / 2)) < Math.PI / 6) {
+            c.fillStyle = 'rgba(0, 255, 255, 0.3)';
             var p1p3 = delta(p1, p3);
             var p2p4 = delta(p2, p4);
 
@@ -270,44 +267,37 @@ $(document).ready(function() {
               add(center, tocenter1)
             ];
           }
+
         }
+
+        c.beginPath();
+        c.moveTo(corners[0].x, corners[0].y);
+        for (var i = 1; i < corners.length; i++) {
+          c.lineTo(corners[i].x, corners[i].y);
+        }
+        c.fill();
       } else {
         corners.push(line[line.length - 1]);
       }
 
       // Line
       if (corners.length === 2) {
-        var start = pointToTime(Math.min(corners[0].x, corners[1].x));
-        var end = pointToTime(Math.max(corners[0].x, corners[1].x));
-        var entry = {
-          start: start,
-          duration: end - start,
+        var start = Math.min(corners[0].x, corners[1].x);
+        var end = Math.max(corners[0].x, corners[1].x);
+        synths.push({
+          start: pointToTime(start),
+          duration: pointToTime(end - start),
           y: (corners[0].y + corners[1].y) / 2
-        };
-        var i = 0;
-        var l = synths.length;
-        while(i < l && start >= synths[i].start) {
-          i++;
-        }
-        synths.splice(i, 0, entry);
-        console.log(synths);
+        });
       } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
-        var time = pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x);
-        var i = 0;
-        var l = snares.length;
-        while(i < l && time >= snares[i]) {
-          i++;
-        }
-        snares.splice(i, 0, time);
+        snares.push(pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x));
       } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
-        var sorted = corners.concat().sort(function(a, b) { return a.x - b.x; });
-        var time = pointToTime((sorted[0].x + sorted[1].x) / 2);
-        var i = 0;
-        var l = bass.length;
-        while(i < l && time >= bass[i]) {
-          i++;
+        var x = [];
+        for (var i = 0, l = corners.length; i < l; i++) {
+          x.push(corners[i].x);
         }
-        bass.splice(i, 0, time);
+        x.sort();
+        bass.push(pointToTime((x[0] + x[1]) / 2));
       } else {
         return;
       }
@@ -328,14 +318,6 @@ $(document).ready(function() {
         c.arc(corners[i].x, corners[i].y, 4, 0, 2 * Math.PI, false);
         c.fill();
       }
-
-      c.fillStyle = 'rgba(0, 255, 255, 0.3)';
-      c.beginPath();
-      c.moveTo(corners[0].x, corners[0].y);
-      for (var i = 1; i < corners.length; i++) {
-        c.lineTo(corners[i].x, corners[i].y);
-      }
-      c.fill();
     });
   });
 

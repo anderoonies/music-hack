@@ -43,3 +43,11 @@
 #larger {
   display: none;
 }
+
+div.vertical-line{
+  position: absolute;
+  left: 0;
+  width: 1px;
+  background-color: black;
+  height: 100%;
+}

@@ -15,6 +15,7 @@ var sounds = {};
 
 var mp3s = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
 
+var timeLine;
 
 sounds.bass = new Howl({
   urls: ['bass.mp3'],
@@ -36,6 +37,9 @@ var scrub = function(newTime) {
     snareIter = 0;
     synthIter = 0;
   }
+
+  var xPos = beatTime / totalMs * window.innerWidth;
+  timeLine.css("left", xPos);
 
   while (bassIter < bass.length && bass[bassIter] <= beatTime) {
     playBass();
@@ -78,6 +82,7 @@ var playSynth = function(start, y, duration) {
 }
 
 $(document).ready(function() {
+  timeLine = $(".vertical-line");
   window.sounds = sounds;
   window.requestAnimationFrame(scrub);
 

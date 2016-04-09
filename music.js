@@ -273,7 +273,7 @@ $(document).ready(function() {
       }
       var diff;
       // Line
-      if (corners.length === 2) {
+      if (corners.length === 2 && (corners[0].x !== corners[1].x || corners[0].y !== corners[1].y)) {
         var start = pointToTime(Math.min(corners[0].x, corners[1].x));
         var adj = Math.round(start / 250) * 250;
         diff = (adj - start) / totalMs * window.innerWidth;

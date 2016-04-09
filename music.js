@@ -118,12 +118,6 @@ $(document).ready(function() {
     }
   }
 
-  colors = ['rgba(255,0,0,0.5)',
-    'rgba(0,255,0,0.5)',
-    'rgba(0,0,255,0.5)',
-    'rgba(200,200,0,0.5)',
-  ];
-
   function vector(x, y) {
     return {
       x: x,
@@ -279,7 +273,7 @@ $(document).ready(function() {
       }
       var diff;
       // Line
-      if (corners.length === 2) {
+      if (corners.length === 2 && (corners[0].x !== corners[1].x || corners[0].y !== corners[1].y)) {
         var start = pointToTime(Math.min(corners[0].x, corners[1].x));
         var adj = Math.round(start / 250) * 250;
         diff = (adj - start) / totalMs * window.innerWidth;
@@ -326,7 +320,7 @@ $(document).ready(function() {
 
       console.log(synths, snares, bass);
 
-      c.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+      c.strokeStyle = 'rgba(0, 0, 255, 0.8)';
       c.beginPath();
       c.moveTo(corners[0].x + diff, corners[0].y);
       for (var i = 1; i < corners.length; i++) {
@@ -334,14 +328,14 @@ $(document).ready(function() {
       }
       c.stroke();
 
-      c.fillStyle = 'rgba(255, 0, 0, 0.5)';
+      c.fillStyle = 'rgba(255, 0, 0, 0.8)';
       for (var i = 0; i < corners.length; i++) {
         c.beginPath();
         c.arc(corners[i].x + diff, corners[i].y, 4, 0, 2 * Math.PI, false);
         c.fill();
       }
 
-      c.fillStyle = 'rgba(0, 255, 255, 0.3)';
+      c.fillStyle = 'rgba(0, 255, 255, 0.6)';
       c.beginPath();
       c.moveTo(corners[0].x + diff, corners[0].y);
       for (var i = 1; i < corners.length; i++) {

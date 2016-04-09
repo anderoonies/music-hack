@@ -62,8 +62,6 @@ var scrub = function(timeline) {
   }
 };
 
-
-
 $(document).ready(function() {
   window.sounds = sounds;
   // scrub();

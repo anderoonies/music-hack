@@ -1,74 +1,84 @@
-var lines = [];
-var triangles = [];
-var rectangles = [];
+var synths = [];
+var snares = [];
+var bass = [];
+
+var bassIter = 0;
+var snareIter = 0;
+var synthIter = 0;
+
+var totalMs = 4000;
+
+var beatTime = 0;
+var lastTime = performance.now();
 
 var sounds = {};
 
-sounds.bass = new Howl({
-  urls: ['bass.mp3']
-});
-sounds.snare = new Howl({
-  urls: ['snare.mp3']
-});
-sounds.synth1 = new Howl({
-  urls: ['synth1.mp3']
-});
-sounds.synth2 = new Howl({
-  urls: ['synth2.mp3']
-});
-sounds.synth3 = new Howl({
-  urls: ['synth3.mp3']
-});
-sounds.synth4 = new Howl({
-  urls: ['synth4.mp3']
-});
-sounds.synth5 = new Howl({
-  urls: ['synth5.mp3']
-});
-sounds.synth6 = new Howl({
-  urls: ['synth6.mp3']
-});
-sounds.synth7 = new Howl({
-  urls: ['synth7.mp3']
-});
-sounds.synth8 = new Howl({
-  urls: ['synth8.mp3']
-});
+var synths = ['A4.mp3', 'B4.mp3', 'Db4.mp3', 'D4.mp3', 'E4.mp3', 'Gb4.mp3', 'Ab4.mp3', 'A5.mp3'];
 
-var scrub = function(timeline) {
-  var drums = timeline.drums;
-  var drumIter = 0;
 
-  var snares = timeline.snares;
-  var snareIter = 0;
+sounds.bass = new Audio('bass.mp3');
+// sounds.bass = new Howl({
+//   urls: ['bass.mp3'],
+//   onend: function() {
+//     sounds.bass.pos = 0;
+//   }
+// });
+sounds.snare = new Audio('snare.mp3');
+// sounds.snare = new Howl({
+//   urls: ['snare.mp3'],
+//   onend: function() {
+//     sounds.snare.pos = 0;
+//   }
+// });
 
-  var synths = timeline.synths;
-  var synthIter = 0;
+var scrub = function(newTime) {
+  var elapsedTime = newTime - lastTime;
+  beatTime = (beatTime + elapsedTime) % totalMs;
 
-  var totalMs = 8000;
-
-  for (var i = 0; i < totalMs; i++) {
-    if (drums[drumIter].x == i) {
-      playDrum();
-      drumIter++;
-    }
-
-    if (snares[snareIter].x == i) {
-      playSnare();
-      snareIter++;
-    }
-
-    if (synths[synthIter].x == i) {
-      synth = synths[synthIter];
-      playSynth(synth.x, synth.y, synth.duration);
-      synthIter++;
-    }
+  while (bass[bassIter] <= beatTime) {
+    playBass();
+    bassIter = (bassIter + 1) % bass.length;
   }
+
+  while (snares[snareIter] <= beatTime) {
+    playSnare();
+    snareIter = (snareIter + 1) % snares.length;
+  }
+
+  while (synths[synthIter].start <= beatTime) {
+    synth = synths[synthIter];
+    playSynth(synth.start, synth.y, synth.duration);
+    synthIter = (synthIter + 1) % synths.length;
+  }
+
+  lastTime = newTime;
+
+  window.requestAnimationFrame(scrub);
 };
+
+var playBass = function() {
+  sounds.bass.src = 'bass.mp3';
+  sounds.bass.play();
+}
+
+var playSnare = function() {
+  sounds.snare.src = 'snare.mp3';
+  sounds.snare.play();
+}
+
+var playSynth = function(start, y, duration) {
+  var note = Math.round(y / 10);
+  var sound = new Howl({
+    urls: [synths[note]],
+    sprite: {
+      note: [0, duration]
+    }
+  }).play('note');
+}
 
 $(document).ready(function() {
   window.sounds = sounds;
-  //scrub();
+  // scrub();
 
   canvas = document.getElementById('canvas');
 
@@ -279,25 +289,25 @@ $(document).ready(function() {
       if (corners.length === 2) {
         var start = Math.min(corners[0].x, corners[1].x);
         var end = Math.max(corners[0].x, corners[1].x);
-        lines.push({
+        synths.push({
           start: pointToTime(start),
           duration: pointToTime(end - start),
           y: (corners[0].y + corners[1].y) / 2
         });
       } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
-        triangles.push(pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x));
+        snares.push(pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x));
       } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
         var x = [];
         for (var i = 0, l = corners.length; i < l; i++) {
           x.push(corners[i].x);
         }
         x.sort();
-        rectangles.push(pointToTime((x[0] + x[1]) / 2));
+        bass.push(pointToTime((x[0] + x[1]) / 2));
       } else {
         return;
       }
 
-      console.log(lines, triangles, rectangles);
+      console.log(synths, snares, bass);
 
       c.strokeStyle = 'rgba(0, 0, 255, 0.5)';
       c.beginPath();

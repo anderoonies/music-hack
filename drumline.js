@@ -69,7 +69,7 @@ var playSnare = function() {
 var playSynth = function(start, y, duration) {
   var note = Math.round((window.innerHeight - y) / window.innerHeight * 7);
   console.log(note);
-  var url = ["samples" + synthMP3s[note]];
+  var url = ["samples/" + synthMP3s[note]];
   console.log(url);
   var sound = new Howl({
     urls: url,

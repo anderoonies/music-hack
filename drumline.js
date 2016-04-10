@@ -14,10 +14,10 @@ var lastTime = 0;
 var sounds = {};
 
 sounds.bass = new Howl({
-  urls: ['bass.mp3']
+  urls: ['samples/bass.mp3']
 });
 sounds.snare = new Howl({
-  urls: ['snare.mp3']
+  urls: ['samples/snare.mp3']
 });
 
 var synthMP3s = ['C.mp3', 'D.mp3', 'E.mp3', 'F.mp3', 'G.mp3', 'A.mp3', 'B.mp3', 'C8a.mp3'];
@@ -69,7 +69,7 @@ var playSnare = function() {
 var playSynth = function(start, y, duration) {
   var note = Math.round((window.innerHeight - y) / window.innerHeight * 7);
   console.log(note);
-  var url = [synthMP3s[note]];
+  var url = ["samples" + synthMP3s[note]];
   console.log(url);
   var sound = new Howl({
     urls: url,

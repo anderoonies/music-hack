@@ -13,10 +13,6 @@ var lastTime = 0;
 
 var sounds = {};
 
-var synthMP3s = ['C.mp3', 'D.mp3', 'E.mp3', 'F.mp3', 'G.mp3', 'A.mp3', 'B.mp3', 'C8a.mp3'];
-
-var timeLine;
-
 sounds.bass = new Howl({
   urls: ['bass.mp3']
 });
@@ -24,9 +20,13 @@ sounds.snare = new Howl({
   urls: ['snare.mp3']
 });
 
+var synthMP3s = ['C.mp3', 'D.mp3', 'E.mp3', 'F.mp3', 'G.mp3', 'A.mp3', 'B.mp3', 'C8a.mp3'];
+
+var timeLine;
+
 var scrub = function(newTime) {
   var elapsedTime = newTime - lastTime;
-  beatTime = beatTime + elapsedTime;
+  beatTime += elapsedTime;
   if (beatTime >= totalMs) {
     beatTime = beatTime % totalMs;
     bassIter = 0;
@@ -60,28 +60,30 @@ var scrub = function(newTime) {
 
 var playBass = function() {
   sounds.bass.play();
-}
+};
 
 var playSnare = function() {
   sounds.snare.play();
-}
+};
 
 var playSynth = function(start, y, duration) {
   var note = Math.round((window.innerHeight - y) / window.innerHeight * 7);
-  console.log(note)
+  console.log(note);
   var url = [synthMP3s[note]];
-  console.log(url)
+  console.log(url);
   var sound = new Howl({
     urls: url,
     sprite: {
       note: [0, duration]
     }
   }).play('note');
-}
+};
 
-$(document).ready(function() {
+$(function() {
+  $('.beat-line').each(function(i, el) {
+    $(el).css('left', i * (window.innerWidth / 8));
+  });
   timeLine = $(".scrub-line");
-  window.sounds = sounds;
   window.requestAnimationFrame(scrub);
 
   canvas = document.getElementById('canvas');
@@ -91,11 +93,6 @@ $(document).ready(function() {
 
   $('#help').css('left', (window.innerWidth - $('#help').width()) / 2 + 'px')
     .css('top', (window.innerHeight - $('#help').height()) / 2 + 'px');
-
-  if (window.location.search == '?embed') {
-    $('#moreinfo').hide();
-    $('#larger').show();
-  }
 
   c = canvas.getContext('2d');
 
@@ -110,11 +107,9 @@ $(document).ready(function() {
   function direction(d) {
     var horiz = (Math.abs(d.x) > Math.abs(d.y));
     if (horiz) {
-      if (d.x < 0) return 0;
-      return 1;
+      return d.x < 0 ? 0 : 1;
     } else {
-      if (d.y < 0) return 2;
-      return 3;
+      return d.y < 0 ? 2 : 3;
     }
   }
 
@@ -258,8 +253,6 @@ $(document).ready(function() {
 
             var center = average([p1, p2, p3, p4]);
 
-            var angle = angle_between(p1p3, p2p4);
-
             corners = [add(center, tocenter1),
               add(center, tocenter2),
               add(center, scale(tocenter1, -1)),
@@ -271,9 +264,10 @@ $(document).ready(function() {
       } else {
         corners.push(line[line.length - 1]);
       }
+
       var diff;
-      // Line
       if (corners.length === 2 && (corners[0].x !== corners[1].x || corners[0].y !== corners[1].y)) {
+        // Line
         var start = pointToTime(Math.min(corners[0].x, corners[1].x));
         var adj = Math.round(start / 250) * 250;
         diff = (adj - start) / totalMs * window.innerWidth;
@@ -290,8 +284,8 @@ $(document).ready(function() {
           i++;
         }
         synths.splice(i, 0, entry);
-        console.log(synths);
       } else if (corners.length === 4 && corners[0].x === corners[3].x && corners[0].y === corners[3].y) {
+        // Triangle
         var time = pointToTime(CalculateCircleCenter(corners[0], corners[1], corners[2]).x);
         var adj = Math.round(time / 250) * 250;
         diff = (adj - time) / totalMs * window.innerWidth;
@@ -303,6 +297,7 @@ $(document).ready(function() {
         }
         snares.splice(i, 0, time);
       } else if (corners.length === 5 && corners[0].x === corners[4].x && corners[0].y === corners[4].y) {
+        // Rectangle
         var sorted = corners.concat().sort(function(a, b) { return a.x - b.x; });
         var time = pointToTime((sorted[0].x + sorted[1].x) / 2);
         var adj = Math.round(time / 250) * 250;
@@ -327,6 +322,8 @@ $(document).ready(function() {
         c.lineTo(corners[i].x + diff, corners[i].y);
       }
       c.stroke();
+      c.fillStyle = 'rgba(0, 255, 255, 0.6)';
+      c.fill();
 
       c.fillStyle = 'rgba(255, 0, 0, 0.8)';
       for (var i = 0; i < corners.length; i++) {
@@ -334,27 +331,13 @@ $(document).ready(function() {
         c.arc(corners[i].x + diff, corners[i].y, 4, 0, 2 * Math.PI, false);
         c.fill();
       }
-
-      c.fillStyle = 'rgba(0, 255, 255, 0.6)';
-      c.beginPath();
-      c.moveTo(corners[0].x + diff, corners[0].y);
-      for (var i = 1; i < corners.length; i++) {
-        c.lineTo(corners[i].x + diff, corners[i].y);
-      }
-      c.fill();
     });
   });
 
   $('#clear').click(function() {
     c.clearRect(0, 0, canvas.width, canvas.height);
+    synths = [];
+    snares = [];
+    bass = [];
   });
-});
-
-$(window).load(function() {
-  $('.beat-line').each(function(i, el) {
-    $(el).css('left', i * (window.innerWidth / 8));
-  })
-  // for (var i = 0; i < $('.beat-line').length; i++) {
-  //   $('.beat-line')[i].style.left = window.innerWidth / 8 * i;
-  // }
 });
